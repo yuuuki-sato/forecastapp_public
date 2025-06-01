@@ -1,0 +1,93 @@
+@startuml
+class com.example.forecastapp.JMA {
++ List<WeatherDataElement>? getJson(String)
+- List<WeatherDataElement> makeList(String)
+}
+note right of com.example.forecastapp.JMA::getJson(String)
+/**
+     * 気象庁からJSONを取得する
+     * - https://toronavi.com/connection-httpurlconnection
+     * - https://engineering.konso.me/articles/kotlin-httpconnection/
+     */
+end note
+note right of com.example.forecastapp.JMA::makeList(String)
+/**
+     * JSONからリストを作成する
+     * serialization by GSON
+     */
+end note
+
+class com.example.forecastapp.WeatherViewModel {
+-  jma
+-  _dataList
++ StateFlow<List<WeatherDataElement>?> dataList
++ void fetchWeatherData(String)
+}
+
+note left of com.example.forecastapp.WeatherViewModel::fetchWeatherData(String)
+/**
+     * 気象庁から天気情報を取得する
+     * コルーチンでgetJsonを呼び出す
+     */
+end note
+
+class com.example.forecastapp.MainActivity {
+- WeatherViewModel viewModel
++ void onCreate(Bundle?)
+}
+
+
+class com.example.forecastapp.WeatherDataElement {
++ <<Create>> WeatherDataElement(String,String,List<TimeSery>,PAverage?,PAverage?)
+}
+note top of com.example.forecastapp.WeatherDataElement
+/**
+ * オンラインツールでJsonからdata class WeatherDataElementを作成した
+ * online tool:  https://app.quicktype.io/
+ */
+end note
+
+
+class com.example.forecastapp.PAverage {
++ <<Create>> PAverage(List<PrecipAverageArea>)
+}
+
+class com.example.forecastapp.PrecipAverageArea {
++ <<Create>> PrecipAverageArea(AreaArea,String,String)
+}
+
+class com.example.forecastapp.AreaArea {
++ <<Create>> AreaArea(String,String)
+}
+
+class com.example.forecastapp.TimeSery {
++ <<Create>> TimeSery(List<String>,List<TimeSeryArea>)
+}
+
+class com.example.forecastapp.TimeSeryArea {
++ <<Create>> TimeSeryArea(AreaArea,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?,List<String>?)
+}
+
+class com.example.forecastapp.Prefectures {
++ Map<String, Int> maps
+}
+note top of com.example.forecastapp.Prefectures
+/**
+ * 気象庁予報区コード
+ * - https://anko.education/webapi/jma
+ * - https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=130000
+ */
+end note
+
+
+'com.example.forecastapp.JMA <-- com.example.forecastapp.WeatherDataElement
+com.example.forecastapp.WeatherDataElement *-- com.example.forecastapp.PAverage
+com.example.forecastapp.WeatherDataElement *-- com.example.forecastapp.TimeSery
+com.example.forecastapp.TimeSery *-- com.example.forecastapp.TimeSeryArea
+com.example.forecastapp.PAverage *-- com.example.forecastapp.PrecipAverageArea
+com.example.forecastapp.TimeSeryArea *-- com.example.forecastapp.AreaArea
+com.example.forecastapp.PrecipAverageArea *-- com.example.forecastapp.AreaArea
+
+androidx.lifecycle.ViewModel <|-- com.example.forecastapp.WeatherViewModel
+androidx.activity.ComponentActivity <|-- com.example.forecastapp.MainActivity
+@enduml
